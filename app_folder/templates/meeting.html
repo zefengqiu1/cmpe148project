@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %} 
+<div>
+    {% if appointment_list%}
+    <table class="table">
+        <tr>
+            <th>Date</th>
+            <th>Meeting with</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Description</th>
+          </tr>
+          {% for message in appointment_list %}
+          <tr>
+              <td>{{ message.Date}}</td>
+              <td>{{ message.name }}</td>
+              <td>{{ message.start_time }}</td>
+              <td>{{ message.end_time }}</td>
+              <td>{{ message.description}}</td>
+          </tr>
+          {% endfor %} 
+    </table>
+{%else%}    
+    <h1>No Record!!</h1>    
+{%endif%}
+</div>
+{% endblock %}

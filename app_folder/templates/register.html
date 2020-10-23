@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% import "bootstrap/wtf.html" as wtf %}
+<style>
+    .form-control{
+        width:200px;
+    }
+</style>
+<div class="container">
+<form action=" " method="post">
+    <h1>Register</h1>
+    {{ form.hidden_tag() }}
+    <p>
+        {{wtf.quick_form(form,button_map={'submit': 'primary'})}}
+    </p>
+
+</form>
+</div>
+{% endblock %}

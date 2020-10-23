@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %} 
+{% import "bootstrap/wtf.html" as wtf %}
+
+<script>
+    function back(){
+        window.history.back();
+    }
+</script>
+<div class="container-fluid">
+    <div class="row content">
+        <div class="col-sm-2 sidenav"></div>
+        <div class="col-sm-8 text-left"> 
+            <button class="btn btn-primary" id="button" onclick='back()'>Back</button>
+            <form  action="" method="post" id="form" >
+                {{ form.hidden_tag() }}
+            <p>
+                {{Date}}
+                {{wtf.quick_form(form,button_map={'submit': 'primary'})}}
+            </p>
+            </form>
+        </div>
+        <div class="col-sm-2 sidenav"></div>
+    </div>
+</div>
+{% endblock %}

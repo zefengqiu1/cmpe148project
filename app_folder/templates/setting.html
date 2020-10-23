@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block content %} 
+{% import "bootstrap/wtf.html" as wtf %}
+<style type="text/css">
+    .sidenav {
+      padding-top: 20px;
+      background-color: #f1f1f1;
+      height: 100%;
+    }
+    @media screen and (max-width: 767px) {
+      .sidenav {
+        height: auto;
+        padding: 15px;
+      }
+      .row.content {height:auto;} 
+    }
+    .row.content {height: 900px}
+    .switch{
+        position: relative;
+        display: inline-block;
+        bottom: 10px;
+        width: 60px;
+        height: 34px;
+    }
+    
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+    }
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+    }
+    .sliderchecked {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #2196F3;
+    }
+    .sliderchecked:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        right: 4px;
+        bottom: 4px;
+        background-color: white;
+    }
+    #form2 {
+        position: relative;
+        top: 0;
+        left: 0;
+    }
+    #form {
+        position: absolute;
+        top:0px;
+        left: 300px;
+    }
+</style>
+<script>
+    function myFunction() {
+        var r = confirm("Confirm delete this account");
+        if (r == true) {
+            location.replace("/delete")
+        } else {
+        }
+    }
+</script>
+<div class="container-fluid">
+    <div class="row content">
+        <div class="col-sm-2 sidenav"></div>
+        <div class="col-sm-8 text-left"> 
+            Email Confirmation
+            <label class="switch">
+                <form action=""  method="post" id="form2" >
+                    {{ form2.hidden_tag() }}
+                    {{ form2.confirm(id="myclass",checked=current_user.mailconfirm,onclick="this.form.submit()") }}
+                </form>
+                {%if current_user.mailconfirm%}
+                <span class="sliderchecked"></span>
+                {%else%}
+                <span class="slider"></span>
+                {%endif%}
+            </label>
+            <br>
+            <a href="#" onclick="myFunction()">Delete account</a>
+
+            <form  action="" method="post" id="form">
+                {{ form.hidden_tag() }}
+                {{ form.csrf_token }}
+            <p>
+                <p>Please input the availability</p>
+                <br>
+                {{ wtf.form_field(form.start_time,type="time",min='09:00',value=start_time)}}
+                {{ wtf.form_field(form.end_time,type="time",max='17:00',value=end_time)}}
+                <br>
+                {{wtf.form_field( form.length)}}
+                <br>
+                {{ wtf.form_field(form.submit,button_map={'submit': 'primary'})}}
+            </p>
+            </form>
+        </div>
+        <div class="col-sm-2 sidenav"></div>
+    </div>
+</div>
+{% endblock %}

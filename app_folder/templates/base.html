@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Team2 Homepage</title>
+        
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="../static/style.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    </head>
+    <style>
+      .navbar-brand{
+        position: relative;
+        left:20px;
+        font-size:30px;
+      }
+      .navbar-nav{
+        font-size:20px;
+      }
+      .form-control{
+          width:200px;
+      }
+    </style>
+    <body>
+        <nav class="navbar navbar-inverse">
+          <div class="container-fluid">
+            <div class="navbar-header">
+              {% if current_user.is_authenticated %}
+                <div class="navbar-brand">Hello! {{current_user.username}}</div>
+              {%else%}
+                <div class="navbar-brand">Hello! Guest</div>
+              {%endif%}
+            </div>
+              <ul class="nav navbar-nav navbar-right">
+                {%if not current_user.is_authenticated%}
+                  <li ><a href="/login">Login</a></li>
+                {%else%}
+                  <li ><a href="/logout">Logout</a></li>
+                {%endif%}
+                  <li ><a href="/meeting">Meeting</a></li>
+                  <li><a href="/setting">Setting</a></li>
+              </ul>
+          </div>
+        </nav>
+        {% block content %} {% endblock %}
+    </body>
+
+</html>

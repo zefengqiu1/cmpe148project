@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% import "bootstrap/wtf.html" as wtf %}
+<div class="container">
+<h1>Reset password</h1>
+<form action=" " method="post">
+    {{ form.hidden_tag() }}
+    <p>
+       Email:{{email}}
+    </p>
+    <p>
+        {{wtf.quick_form(form,button_map={'submit': 'primary'})}}
+    </p>
+</form>
+</div>
+<<<<<<< HEAD
+{% endblock %}
+=======
+{% endblock %}
+>>>>>>> 45b354e27d4b73fd4fd1a9c2f238fee848a20b25

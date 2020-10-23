@@ -1,0 +1,84 @@
+/* calendar */
+.clmonth{
+    position: relative;
+    border-collapse:collapse;       
+    width:780px;
+    left:180px;
+}
+.clmonth caption{                                        
+    text-align:center;
+    font:bold 130% Georgia,"Times New Roman";
+    padding-bottom:6px;
+}
+.clmonth th{                                              
+    border:1px solid #999999;
+    border-bottom:none;
+    padding:2px 8px 2px 8px;
+    background-color:#D3D2A0;
+    color:#2F2F2F;
+    font:80% Verdana,Geneva,Arial,Helvetica,sans-serif;
+    width:110px;
+}
+.clmonth td{                                             
+    height:100px; 
+    border:1px solid #AFAFAF;
+    font:80% Verdana,Geneva,Arial,Helvetica,sans-serif;
+    padding:2px 4px 2px 4px;
+    vertical-align:top;
+    
+}
+.clmonth td a{                                             
+    text-decoration: none;
+    margin:0;
+    padding-left:12px;
+    padding-right:6px; 
+    background-color:#F5F4E6;                        
+    color:#A6A6A6;   
+    font-size: 20;
+    font-weight: bold;
+}
+
+
+.clmonth ul{                                               
+    list-style-type:none;
+    margin:0;
+    padding-left:12px;
+    padding-right:6px;                
+}
+
+.cal_div {
+    position: relative;
+    left: 100px;
+    top: 100px;
+
+}
+
+/* edit event */
+.sidenav {
+    padding-top: 20px;
+    background-color: #f1f1f1;
+    height: 100%;
+}
+@media screen and (max-width: 767px) {
+    .sidenav {
+    height: auto;
+    padding: 15px;
+    }
+    .row.content {height:auto;} 
+}
+.row.content {height: 900px}
+.page{
+    position: relative;
+    top:90;
+    background-color: blue;
+} 
+
+#button{
+    font-size: 20px;
+}
+#button:hover{
+    background-color: #b8b8b87a;
+}
+#form{
+    width: 180px;
+}
