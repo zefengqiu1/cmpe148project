@@ -25,8 +25,8 @@ def home():
     return:
        go to the home page
     '''
-    if current_user.is_authenticated:
-        return redirect('/meeting')
+    # if current_user.is_authenticated:
+    #     return redirect('/meeting')
     return render_template('index.html')
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -235,10 +235,14 @@ def meeting():
     return:
         meeting.html and appointment list
     '''
+    page = request.args.get('page', 1, type=int)
     appointment_list=[]
     user = User.query.filter_by(username=current_user.username).first()
-    appointment_list = Appointment.query.filter(Appointment.user_id ==user.id).all()
-    appointment_list=sorted(appointment_list,key=functools.cmp_to_key(cmp))
+    appointment_list = Appointment.query.filter(Appointment.user_id ==user.id)\
+                    .order_by(Appointment.Date.desc())\
+                    .paginate(page=page, per_page=5)
+    #print(appointment_list.per_page)
+    #appointment_list=sorted(appointment_list,key=functools.cmp_to_key(cmp))
     return render_template("meeting.html",appointment_list=appointment_list)
 
 @app.route('/<username>',methods=["GET","POST"])
@@ -325,3 +329,9 @@ def editevent():
         db.session.commit()
         return redirect("/"+name)
     return render_template("editevent.html",form=form,name=name,Date=Date)
+
+@app.route('/chatlogin', methods=["GET","POST"])
+def chatlogin():
+        #return redirect(url_for('chat',username=username)) 
+    return render_template('chatLogin.html')
+
