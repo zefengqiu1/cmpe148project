@@ -7,13 +7,13 @@ from flask_mail import Message
 from flask import render_template, redirect, request, flash, url_for
 from .forms import LoginForm,RegistrationForm, ForgetPasswordForm, NewPasswordForm,AvailableForm,EventForm,EmailConfimationForm,monthswitchForm
 from .models import User,Appointment,Available
-from .util import ts,split_time_ranges,cmp
+from .util import ts,split_time_ranges
 import os
+import secrets
 import calendar
 from datetime import datetime,timedelta,date,time
 from flask import request
 import functools
-
 
 @app.route('/')
 def home():
@@ -51,7 +51,16 @@ def login():
         login_user(user,remember=form.remember_me.data)
         return redirect('/meeting')  
     return render_template('login.html', form=form)
-    
+
+
+def save_picture(form_picture):
+    random_hex=secrets.token_hex(8)
+    f_name,f_ext = os.path.splittext(form_picture.filename)
+    picture_fn = random_hex + f_ext
+    picture_path = os.path.join(app.root_path,'static/img',picture_fn)
+    form_picture.save(picture_path)
+    return picture_fn
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     '''
@@ -70,6 +79,12 @@ def register():
     form = RegistrationForm()
 
     if form.validate_on_submit():
+        
+        # image=request.files['photo']
+        
+        # picture_path = os.path.join(app.root_path,'static/img',image.filename)
+        # image.save(picture_path)
+        # print(picture_path)
         user = User(username=form.username.data, email=form.email.data, mailconfirm=True)
         user.set_password(form.password.data)
         db.session.add(user)
@@ -235,15 +250,15 @@ def meeting():
     return:
         meeting.html and appointment list
     '''
+
     page = request.args.get('page', 1, type=int)
     appointment_list=[]
     user = User.query.filter_by(username=current_user.username).first()
     appointment_list = Appointment.query.filter(Appointment.user_id ==user.id)\
                     .order_by(Appointment.Date.desc())\
                     .paginate(page=page, per_page=5)
-    #print(appointment_list.per_page)
-    #appointment_list=sorted(appointment_list,key=functools.cmp_to_key(cmp))
     return render_template("meeting.html",appointment_list=appointment_list)
+  
 
 @app.route('/<username>',methods=["GET","POST"])
 def username(username):
@@ -260,12 +275,27 @@ def username(username):
     user = User.query.filter_by(username=username).first()
     if user:#found this creator in database, then show calendar 
         date = datetime.today()
+        if form.year.data is not None:
+            date=date.replace(year = int(form.year.data))
         calendar.setfirstweekday(firstweekday=6)
         content = calendar.monthcalendar(date.year, date.month)#calendar.month_abbr[date.month]
         if form.validate_on_submit and form.value.data:
+            if(form.value.data=='13'):
+                print(form.value.data)
+                date=date.replace(year = date.year + 1 )
+                print(date.year)
+                form.value.data='1'
+            elif(form.value.data=='0'):
+                print(form.value.data)
+                date=date.replace(year = date.year - 1 )
+                print(form.value.data)
+                form.value.data='12'
+                print(date.year)
+            print(form.value.data)
             date=date.replace(month=int(form.value.data))
         else:
             form.value.data=date.month
+        form.year.data=date.strftime("%Y")
         content = calendar.monthcalendar(date.year, date.month)#calendar.month_abbr[date.month]
         return render_template('calendar.html',date=date, content=content,name=username,form=form)
     else: #otherwise back to the home page
@@ -324,14 +354,33 @@ def editevent():
         start_time = datetime.strptime(start,'%H:%M:%S').time()
         end_time = datetime.strptime(end, '%H:%M:%S').time() 
         print("success")
-        appointment = Appointment(name=form.name.data,Date=Date, start_time=start_time,end_time=end_time,description=form.description.data,user_id=user.id)
+        appointment = Appointment(name=form.name.data,Date=Date, start_time=start_time,end_time=end_time,description=form.description.data,user_id=user.id,email=form.email.data)
         db.session.add(appointment)
         db.session.commit()
         return redirect("/"+name)
     return render_template("editevent.html",form=form,name=name,Date=Date)
+  
 
 @app.route('/chatlogin', methods=["GET","POST"])
 def chatlogin():
-        #return redirect(url_for('chat',username=username)) 
     return render_template('chatLogin.html')
 
+@app.route('/chat', methods=["GET","POST"])
+def chat():
+    name = request.args.get('username')
+    return render_template('chat.html',username=name)
+
+
+@app.route('/deleteRecord',methods=["GET","POST"])
+@login_required
+def deleteRecord():
+    email = request.args.get('email')
+    Date = request.args.get('date')
+    start = request.args.get('start')
+    end = request.args.get('end')
+    start_time = datetime.strptime(start,'%H:%M:%S').time()
+    end_time = datetime.strptime(end, '%H:%M:%S').time() 
+    appointment = Appointment.query.filter_by(email=email,Date=Date,start_time=start_time,end_time=end_time).first()
+    db.session.delete(appointment)
+    db.session.commit()
+    return redirect('/meeting')

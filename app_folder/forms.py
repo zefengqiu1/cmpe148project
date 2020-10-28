@@ -51,7 +51,9 @@ class NewPasswordForm(FlaskForm):
 class AvailableForm(FlaskForm):
     start_time = TimeField("Start Time",validators=[DataRequired()],format='%H:%M')
     end_time = TimeField("End Time",validators=[DataRequired()],format='%H:%M')
+    email = StringField('Email',validators=[DataRequired()],render_kw={"placeholder": "123@gmail.com"})
     length = SelectField('Meeting Length(mins)', choices=[('15', "15"), ('30', "30"), ('60', "60")],validators=[DataRequired()])
+
     submit = SubmitField("Submit")
 
     def validate_end_time(self, end_time):
@@ -61,6 +63,7 @@ class AvailableForm(FlaskForm):
 class EventForm(FlaskForm):
     availabletime = SelectField('Select Time slot',validators=[DataRequired()])
     name= StringField("Name:",validators=[DataRequired()],render_kw={"placeholder": "Name"})
+    email = StringField('Email', validators=[DataRequired(), Email()],render_kw={"placeholder": "123@gmail.com"})
     description = TextAreaField('Description:',validators=[DataRequired()],render_kw={"placeholder": "Enter Here"})
     submit = SubmitField("Submit")
 
@@ -71,3 +74,4 @@ class monthswitchForm(FlaskForm):
     dec=SubmitField("<")
     inc=SubmitField(">")
     value=HiddenField('dec')
+    year=HiddenField('year')

@@ -4,20 +4,14 @@
 <script>
 	function setvalue(x){	
 		document.forms['myform'].elements["value"].value=parseInt(document.forms['myform'].elements["value"].value)+x;
-		if(document.forms['myform'].elements["value"].value==0)
-		{
-			document.forms['myform'].elements["value"].value=12
-		}
-		else if(document.forms['myform'].elements["value"].value==13)
-		{
-			document.forms['myform'].elements["value"].value=1
-		}
 	}
 	
 </script>
 
 {% set month = ['January', 'February', 'March', 'April', 'May', 'June', 'July','August','September','October','November','December'] %}
 {% set week_addr = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'] %}
+
+
 <div class="container">
     <h1 style="text-align: center;">Making appointment with: {{name}}</h1>
 		<table class="clmonth ">
