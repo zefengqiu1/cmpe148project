@@ -5,7 +5,7 @@ from app_folder import db,mail
 from flask_login import login_required,login_user,UserMixin,current_user,logout_user
 from flask_mail import Message
 from flask import render_template, redirect, request, flash, url_for
-from .forms import LoginForm,RegistrationForm, ForgetPasswordForm, NewPasswordForm,AvailableForm,EventForm,EmailConfimationForm,monthswitchForm
+from .forms import LoginForm,RegistrationForm, ForgetPasswordForm, NewPasswordForm,AvailableForm,EventForm,EmailConfimationForm,monthswitchForm,uploadImage
 from .models import User,Appointment,Available
 from .util import ts,split_time_ranges
 import os
@@ -14,6 +14,9 @@ import calendar
 from datetime import datetime,timedelta,date,time
 from flask import request
 import functools
+from flask_socketio import send, emit,join_room, leave_room
+from app_folder import socketio
+import time
 
 @app.route('/')
 def home():
@@ -27,7 +30,8 @@ def home():
     '''
     # if current_user.is_authenticated:
     #     return redirect('/meeting')
-    return render_template('index.html')
+    users = User.query.all()
+    return render_template('index.html',users=users)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -52,14 +56,6 @@ def login():
         return redirect('/meeting')  
     return render_template('login.html', form=form)
 
-
-def save_picture(form_picture):
-    random_hex=secrets.token_hex(8)
-    f_name,f_ext = os.path.splittext(form_picture.filename)
-    picture_fn = random_hex + f_ext
-    picture_path = os.path.join(app.root_path,'static/img',picture_fn)
-    form_picture.save(picture_path)
-    return picture_fn
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -130,6 +126,30 @@ def forget():
                           recipients=[email]) #recipients need list type
         return render_template('forget.html',form=form,done=1)
     return render_template('forget.html',form=form,done=0)
+
+@app.route('/roomlink/<emailaddress>', methods=["GET","POST"])
+def roomlink(emailaddress):
+    '''
+    this function allow user apply to reset password if they
+    forget
+
+    args:
+        none
+    return:
+        A reset link include token send to user's email 
+    '''
+    
+    subject="room link"
+    print(emailaddress)
+    email=emailaddress
+    token=ts.dumps(email,salt='room-key')
+    room_url=url_for('chatlogin',token=token,_external=True)
+    html=render_template('email/roomlink.html',room_url=room_url)
+    mail.send_message(subject=subject,
+                        html=html,
+                        recipients=[email]) #recipients need list type
+    return redirect('/meeting')
+
 
 @app.route('/email/<token>',methods=["GET","POST"])
 def reset_with_token(token):
@@ -258,7 +278,7 @@ def meeting():
                     .order_by(Appointment.Date.desc())\
                     .paginate(page=page, per_page=5)
     return render_template("meeting.html",appointment_list=appointment_list)
-  
+   
 
 @app.route('/<username>',methods=["GET","POST"])
 def username(username):
@@ -359,16 +379,26 @@ def editevent():
         db.session.commit()
         return redirect("/"+name)
     return render_template("editevent.html",form=form,name=name,Date=Date)
-  
+##################   
 
 @app.route('/chatlogin', methods=["GET","POST"])
+@login_required
 def chatlogin():
+        #return redirect(url_for('chat',username=username)) 
     return render_template('chatLogin.html')
 
 @app.route('/chat', methods=["GET","POST"])
 def chat():
     name = request.args.get('username')
     return render_template('chat.html',username=name)
+
+@socketio.on('message')
+def on_message(msg):
+    """Broadcast messages"""
+    name=msg['username']
+    msg=msg['msg']
+    time_stamp = time.strftime('%b-%d %I:%M%p', time.localtime())
+    send({"name":name,"msg": msg, "time_stamp": time_stamp},broadcast=True)
 
 
 @app.route('/deleteRecord',methods=["GET","POST"])
@@ -384,3 +414,4 @@ def deleteRecord():
     db.session.delete(appointment)
     db.session.commit()
     return redirect('/meeting')
+

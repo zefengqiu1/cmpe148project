@@ -1,8 +1,14 @@
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileAllowed,FileField,FileRequired
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, DateTimeField, SelectField,DateField,TimeField,HiddenField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
 from app_folder.models import User
 from datetime import time
+# from werkzeug.utils import secure_filename
+# from werkzeug.datastructures import  FileStorage
+# from flask_uploads import IMAGES
+#from flask_uploads import IMAGE
+
 
 class LoginForm(FlaskForm):
     username = StringField('Username',render_kw={"placeholder": "Username"})
@@ -20,6 +26,7 @@ class LoginForm(FlaskForm):
 class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()],render_kw={"placeholder": "Username"})
     email = StringField('Email', validators=[DataRequired(), Email()],render_kw={"placeholder": "123@gmail.com"})
+    #photo = FileField('image', validators=[FileRequired(),FileAllowed(['jpg', 'png'], 'Images only!')])
     password = PasswordField('Password', validators=[DataRequired()],render_kw={"placeholder": "Password"})
     password2 = PasswordField('Comfirmed Password', validators=[DataRequired(), EqualTo('password','unmatched')],render_kw={"placeholder": "Password"})
     submit = SubmitField('Register')
@@ -44,16 +51,14 @@ class ForgetPasswordForm(FlaskForm):
             raise ValidationError('User not found')
 
 class NewPasswordForm(FlaskForm):
-    password = StringField('New Password',validators=[DataRequired()],render_kw={"placeholder": "Password"})
+    password = PasswordField('New Password',validators=[DataRequired()],render_kw={"placeholder": "Password"})
     password2 = PasswordField('Comfirmed Password', validators=[DataRequired(), EqualTo('password','unmatched')],render_kw={"placeholder": "Password"})
     submit = SubmitField('Confirm')
 
 class AvailableForm(FlaskForm):
     start_time = TimeField("Start Time",validators=[DataRequired()],format='%H:%M')
     end_time = TimeField("End Time",validators=[DataRequired()],format='%H:%M')
-    email = StringField('Email',validators=[DataRequired()],render_kw={"placeholder": "123@gmail.com"})
     length = SelectField('Meeting Length(mins)', choices=[('15', "15"), ('30', "30"), ('60', "60")],validators=[DataRequired()])
-
     submit = SubmitField("Submit")
 
     def validate_end_time(self, end_time):
@@ -75,3 +80,7 @@ class monthswitchForm(FlaskForm):
     inc=SubmitField(">")
     value=HiddenField('dec')
     year=HiddenField('year')
+
+class uploadImage(FlaskForm):
+    photo = FileField('image', validators=[FileRequired(),FileAllowed(['jpg', 'png'], 'Images only!')])
+    submit = SubmitField("Submit")

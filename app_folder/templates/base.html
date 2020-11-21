@@ -34,12 +34,12 @@
               {%endif%}
             </div>
               <ul class="nav navbar-nav navbar-right">
-                <li><a href="/">Home</a></li>
                 {%if not current_user.is_authenticated%}
                   <li ><a href="/login">Login</a></li>
                 {%else%}
                   <li ><a href="/logout">Logout</a></li>
                 {%endif%}
+                  <li><a href="/">Home</a></li>
                   <li ><a href="/chatlogin">ChatLogin</a></li>
                   <li ><a href="/meeting">Meeting</a></li>
                   <li><a href="/setting">Setting</a></li>

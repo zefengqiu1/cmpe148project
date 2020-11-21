@@ -32,28 +32,3 @@ def split_time_ranges(from_time, to_time, frequency):
     elif to_time!=time_range[-1]:
         time_ranges.append([time_range[-1]+" "+to_time,time_range[-1]+" "+to_time])
     return time_ranges
- 
-
-
-def cmp(a, b):
-    '''
-    this function is to compare the datetime in the list
-
-    args:
-
-        a(appinment object):appintment a
-
-        b(appinment object):appinment b
-
-    return:
-        the number 0,1,-1  
-    '''
-    a=datetime.combine(a.Date,a.start_time)
-    b=datetime.combine(b.Date,b.start_time)
-    if b < a:
-        return 1
-    if a < b:
-        return -1
-    return 0
-
-
