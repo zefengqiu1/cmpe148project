@@ -1,14 +1,14 @@
 # step 1 
 
-requirement.txt 里保存所有需要用到的library 
-在command里运行这个指令自动安装所有的libary  
+requirement.txt contain all required libraries 
+run this command to install them  
 pip3 install -r requirements.txt 
 
 # step2 
-去到run.py文件，右键点击run python in terminal 
-浏览器输入 http://127.0.0.1:5000 就可以访问了 
+go to run.py, right click and then choose "run python in terminal"
+got to http://127.0.0.1:5000 in browser to access website
 
 # step3 
-用这个账号来登入  
+use this account to login or create your own account 
 username: zefeng 
 password: 123 
