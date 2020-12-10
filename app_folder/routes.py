@@ -373,8 +373,8 @@ def deleteRecord():
     db.session.commit()
     return redirect('/meeting')
 
-@app.route('/roomlink/<emailaddress>', methods=["GET","POST"])
-def roomlink(emailaddress):
+@app.route('/roomlink/<info>', methods=["GET","POST"])
+def roomlink(info):
     '''
     this function allow user apply to reset password if they
     forget
@@ -386,10 +386,11 @@ def roomlink(emailaddress):
     '''
     
     subject="room link"
-    print(emailaddress)
-    email=emailaddress
-    token=ts.dumps(email,salt='room-key')
-    room_url=url_for('chatlogin',token=token,_external=True)
+    print(info)
+    email=info.split("+")[4]
+    print(email)
+    token=ts.dumps(info,salt='room-key')
+    room_url=url_for('chatloginlink',token=token,_external=True)
     html=render_template('email/roomlink.html',room_url=room_url)
     mail.send_message(subject=subject,
                         html=html,
@@ -401,6 +402,22 @@ def roomlink(emailaddress):
 def chatlogin():
         #return redirect(url_for('chat',username=username)) 
     return render_template('chatLogin.html')
+
+@app.route('/chatlogin/<token>', methods=["GET","POST"])
+def chatloginlink(token):
+    try:
+        info = ts.loads(token, salt='room-key')
+    except:
+        os.abort()
+    user_id,Date,start,end,email=info.split("+")
+    start_time = datetime.strptime(start,'%H:%M:%S').time()
+    end_time = datetime.strptime(end, '%H:%M:%S').time() 
+    appointment = Appointment.query.filter_by(user_id=user_id,email=email,Date=Date,start_time=start_time,end_time=end_time).first()
+    if appointment:
+        return render_template('chatLogin.html')
+    else:
+        return 'Outdated appointment'
+    
 
 @app.route('/chat', methods=["GET","POST"])
 def chat():
