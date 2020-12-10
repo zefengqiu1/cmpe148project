@@ -127,30 +127,6 @@ def forget():
         return render_template('forget.html',form=form,done=1)
     return render_template('forget.html',form=form,done=0)
 
-@app.route('/roomlink/<emailaddress>', methods=["GET","POST"])
-def roomlink(emailaddress):
-    '''
-    this function allow user apply to reset password if they
-    forget
-
-    args:
-        none
-    return:
-        A reset link include token send to user's email 
-    '''
-    
-    subject="room link"
-    print(emailaddress)
-    email=emailaddress
-    token=ts.dumps(email,salt='room-key')
-    room_url=url_for('chatlogin',token=token,_external=True)
-    html=render_template('email/roomlink.html',room_url=room_url)
-    mail.send_message(subject=subject,
-                        html=html,
-                        recipients=[email]) #recipients need list type
-    return redirect('/meeting')
-
-
 @app.route('/email/<token>',methods=["GET","POST"])
 def reset_with_token(token):
     '''
@@ -380,25 +356,6 @@ def editevent():
         return redirect("/"+name)
     return render_template("editevent.html",form=form,name=name,Date=Date)
 ##################   
-
-@app.route('/chatlogin', methods=["GET","POST"])
-@login_required
-def chatlogin():
-        #return redirect(url_for('chat',username=username)) 
-    return render_template('chatLogin.html')
-
-@app.route('/chat', methods=["GET","POST"])
-def chat():
-    name = request.args.get('username')
-    return render_template('chat.html',username=name)
-
-@socketio.on('message')
-def on_message(msg):
-    """Broadcast messages"""
-    name=msg['username']
-    msg=msg['msg']
-    time_stamp = time.strftime('%b-%d %I:%M%p', time.localtime())
-    send({"name":name,"msg": msg, "time_stamp": time_stamp},broadcast=True)
 
 
 @app.route('/deleteRecord',methods=["GET","POST"])
