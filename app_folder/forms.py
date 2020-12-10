@@ -81,6 +81,3 @@ class monthswitchForm(FlaskForm):
     value=HiddenField('dec')
     year=HiddenField('year')
 
-class uploadImage(FlaskForm):
-    photo = FileField('image', validators=[FileRequired(),FileAllowed(['jpg', 'png'], 'Images only!')])
-    submit = SubmitField("Submit")

@@ -20,7 +20,7 @@
           <td>{{ message.start_time }}</td>
           <td>{{ message.end_time }}</td>
           <td>{{ message.description}}</td>
-          <td>{{ message.email}}</td>
+          <td><a href="/roomlink/{{message.email}}"><button>{{ message.email}}</button></a></td>
           <td ><a href="/deleteRecord?email={{message.email}}&date={{message.Date}}&start={{message.start_time}}&end={{message.end_time}}"><button>delete</button></a></td>
       </tr>
       {% endfor %} 
