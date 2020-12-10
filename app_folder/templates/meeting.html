@@ -1,28 +1,42 @@
 {% extends "base.html" %}
 
 {% block content %} 
-<div>
-    {% if appointment_list%}
-    <table class="table">
-        <tr>
-            <th>Date</th>
-            <th>Meeting with</th>
-            <th>Start Time</th>
-            <th>End Time</th>
-            <th>Description</th>
-          </tr>
-          {% for message in appointment_list %}
-          <tr>
-              <td>{{ message.Date}}</td>
-              <td>{{ message.name }}</td>
-              <td>{{ message.start_time }}</td>
-              <td>{{ message.end_time }}</td>
-              <td>{{ message.description}}</td>
-          </tr>
-          {% endfor %} 
-    </table>
-{%else%}    
-    <h1>No Record!!</h1>    
-{%endif%}
-</div>
+{% from "bootstrap/pagination.html" import render_pagination %}
+
+<table class="table table-bordered table-hover">
+    <tr>
+        <th>Date</th>
+        <th>Meeting with</th>
+        <th>Start Time</th>
+        <th>End Time</th>
+        <th>Description</th>
+        <th>Email</th>
+        <th>Delete</th>
+      </tr>
+      {% for message in appointment_list.items %}
+      <tr>
+          <td>{{ message.Date}}</td>
+          <td>{{ message.name }}</td>
+          <td>{{ message.start_time }}</td>
+          <td>{{ message.end_time }}</td>
+          <td>{{ message.description}}</td>
+          <td><a href="/roomlink/{{message.email}}"><button>{{ message.email}}</button></a></td>
+          <td ><a href="/deleteRecord?email={{message.email}}&date={{message.Date}}&start={{message.start_time}}&end={{message.end_time}}"><button>delete</button></a></td>
+      </tr>
+      {% endfor %} 
+</table>  
+
+{% for page_num in appointment_list.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+      {% if page_num %}
+        {% if appointment_list.page == page_num %}
+          <a class="btn btn-info mb-4" href="{{ url_for('meeting', page=page_num) }}">{{ page_num }}</a>
+        {% else %}
+          <a class="btn btn-outline-info mb-4" href="{{ url_for('meeting', page=page_num) }}">{{ page_num }}</a>
+        {% endif %}
+      {% else %}
+      {% endif %}
+{% endfor %}
+ 
+  
+
 {% endblock %}

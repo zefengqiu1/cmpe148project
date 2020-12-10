@@ -4,14 +4,21 @@ from flask_mail import Mail
 from config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
+from flask_socketio import SocketIO
+import os
 app = Flask(__name__)
 app.config.from_object(Config)
-
+socketio = SocketIO(app)
 db = SQLAlchemy(app)
 login_manager=LoginManager(app)
 mail=Mail(app)
 bootstrap = Bootstrap(app)
 login_manager.login_view='login'
+#绝对路径
+APPS_DIR = os.path.dirname(__file__)
+STATIC_DIR=os.path.join(APPS_DIR,"static")
+#第一步配置文件上传保存位置
+app.config['UPLOADED_PHOTOS_DEST']= os.path.join(STATIC_DIR,"img")
 
 from app_folder import routes, models
 

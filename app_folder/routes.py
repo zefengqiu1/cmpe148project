@@ -5,15 +5,18 @@ from app_folder import db,mail
 from flask_login import login_required,login_user,UserMixin,current_user,logout_user
 from flask_mail import Message
 from flask import render_template, redirect, request, flash, url_for
-from .forms import LoginForm,RegistrationForm, ForgetPasswordForm, NewPasswordForm,AvailableForm,EventForm,EmailConfimationForm,monthswitchForm
+from .forms import LoginForm,RegistrationForm, ForgetPasswordForm, NewPasswordForm,AvailableForm,EventForm,EmailConfimationForm,monthswitchForm,uploadImage
 from .models import User,Appointment,Available
-from .util import ts,split_time_ranges,cmp
+from .util import ts,split_time_ranges
 import os
+import secrets
 import calendar
 from datetime import datetime,timedelta,date,time
 from flask import request
 import functools
-
+from flask_socketio import send, emit,join_room, leave_room
+from app_folder import socketio
+import time
 
 @app.route('/')
 def home():
@@ -25,9 +28,10 @@ def home():
     return:
        go to the home page
     '''
-    if current_user.is_authenticated:
-        return redirect('/meeting')
-    return render_template('index.html')
+    # if current_user.is_authenticated:
+    #     return redirect('/meeting')
+    users = User.query.all()
+    return render_template('index.html',users=users)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -51,7 +55,8 @@ def login():
         login_user(user,remember=form.remember_me.data)
         return redirect('/meeting')  
     return render_template('login.html', form=form)
-    
+
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     '''
@@ -70,6 +75,12 @@ def register():
     form = RegistrationForm()
 
     if form.validate_on_submit():
+        
+        # image=request.files['photo']
+        
+        # picture_path = os.path.join(app.root_path,'static/img',image.filename)
+        # image.save(picture_path)
+        # print(picture_path)
         user = User(username=form.username.data, email=form.email.data, mailconfirm=True)
         user.set_password(form.password.data)
         db.session.add(user)
@@ -115,6 +126,30 @@ def forget():
                           recipients=[email]) #recipients need list type
         return render_template('forget.html',form=form,done=1)
     return render_template('forget.html',form=form,done=0)
+
+@app.route('/roomlink/<emailaddress>', methods=["GET","POST"])
+def roomlink(emailaddress):
+    '''
+    this function allow user apply to reset password if they
+    forget
+
+    args:
+        none
+    return:
+        A reset link include token send to user's email 
+    '''
+    
+    subject="room link"
+    print(emailaddress)
+    email=emailaddress
+    token=ts.dumps(email,salt='room-key')
+    room_url=url_for('chatlogin',token=token,_external=True)
+    html=render_template('email/roomlink.html',room_url=room_url)
+    mail.send_message(subject=subject,
+                        html=html,
+                        recipients=[email]) #recipients need list type
+    return redirect('/meeting')
+
 
 @app.route('/email/<token>',methods=["GET","POST"])
 def reset_with_token(token):
@@ -235,11 +270,15 @@ def meeting():
     return:
         meeting.html and appointment list
     '''
+
+    page = request.args.get('page', 1, type=int)
     appointment_list=[]
     user = User.query.filter_by(username=current_user.username).first()
-    appointment_list = Appointment.query.filter(Appointment.user_id ==user.id).all()
-    appointment_list=sorted(appointment_list,key=functools.cmp_to_key(cmp))
+    appointment_list = Appointment.query.filter(Appointment.user_id ==user.id)\
+                    .order_by(Appointment.Date.desc())\
+                    .paginate(page=page, per_page=5)
     return render_template("meeting.html",appointment_list=appointment_list)
+   
 
 @app.route('/<username>',methods=["GET","POST"])
 def username(username):
@@ -256,12 +295,27 @@ def username(username):
     user = User.query.filter_by(username=username).first()
     if user:#found this creator in database, then show calendar 
         date = datetime.today()
+        if form.year.data is not None:
+            date=date.replace(year = int(form.year.data))
         calendar.setfirstweekday(firstweekday=6)
         content = calendar.monthcalendar(date.year, date.month)#calendar.month_abbr[date.month]
         if form.validate_on_submit and form.value.data:
+            if(form.value.data=='13'):
+                print(form.value.data)
+                date=date.replace(year = date.year + 1 )
+                print(date.year)
+                form.value.data='1'
+            elif(form.value.data=='0'):
+                print(form.value.data)
+                date=date.replace(year = date.year - 1 )
+                print(form.value.data)
+                form.value.data='12'
+                print(date.year)
+            print(form.value.data)
             date=date.replace(month=int(form.value.data))
         else:
             form.value.data=date.month
+        form.year.data=date.strftime("%Y")
         content = calendar.monthcalendar(date.year, date.month)#calendar.month_abbr[date.month]
         return render_template('calendar.html',date=date, content=content,name=username,form=form)
     else: #otherwise back to the home page
@@ -320,8 +374,44 @@ def editevent():
         start_time = datetime.strptime(start,'%H:%M:%S').time()
         end_time = datetime.strptime(end, '%H:%M:%S').time() 
         print("success")
-        appointment = Appointment(name=form.name.data,Date=Date, start_time=start_time,end_time=end_time,description=form.description.data,user_id=user.id)
+        appointment = Appointment(name=form.name.data,Date=Date, start_time=start_time,end_time=end_time,description=form.description.data,user_id=user.id,email=form.email.data)
         db.session.add(appointment)
         db.session.commit()
         return redirect("/"+name)
     return render_template("editevent.html",form=form,name=name,Date=Date)
+##################   
+
+@app.route('/chatlogin', methods=["GET","POST"])
+@login_required
+def chatlogin():
+        #return redirect(url_for('chat',username=username)) 
+    return render_template('chatLogin.html')
+
+@app.route('/chat', methods=["GET","POST"])
+def chat():
+    name = request.args.get('username')
+    return render_template('chat.html',username=name)
+
+@socketio.on('message')
+def on_message(msg):
+    """Broadcast messages"""
+    name=msg['username']
+    msg=msg['msg']
+    time_stamp = time.strftime('%b-%d %I:%M%p', time.localtime())
+    send({"name":name,"msg": msg, "time_stamp": time_stamp},broadcast=True)
+
+
+@app.route('/deleteRecord',methods=["GET","POST"])
+@login_required
+def deleteRecord():
+    email = request.args.get('email')
+    Date = request.args.get('date')
+    start = request.args.get('start')
+    end = request.args.get('end')
+    start_time = datetime.strptime(start,'%H:%M:%S').time()
+    end_time = datetime.strptime(end, '%H:%M:%S').time() 
+    appointment = Appointment.query.filter_by(email=email,Date=Date,start_time=start_time,end_time=end_time).first()
+    db.session.delete(appointment)
+    db.session.commit()
+    return redirect('/meeting')
+

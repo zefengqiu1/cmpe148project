@@ -1,39 +1,14 @@
-# MileStone2
-Need install python, flask,flask-sqlalchemy, flask-login and flask-mail
+# step 1 
 
-Use python to execute run.py and browse the given link
+requirement.txt contain all required libraries 
+run this command to install them  
+pip3 install -r requirements.txt 
 
-# MileStone3
-For creator:  
+# step2 
+go to run.py, right click and then choose "run python in terminal"
+got to http://127.0.0.1:5000 in browser to access website
 
-1.creator cannot access to meeting and setting page if not log in.  
-
-2.go to the meeting page to see all the appintments.  
-
-3.go to the setting page to delete account or select time avilable and meeting length.  
-
-
-For guest:  
-
-1.please go to http://127.0.0.1:5000/username to see the calendar, if this creator is not exist,back to home page.  
-
-2.select the date in the calendar.  
-
-3.fill out the event form,please fill out all infomation in the form.  
-
-
-Library we used for calendar,date,time:  
-
-1.datetime  
-
-2.calendar  
-
-3.date  
-
-4.time  
-
-# milestone 4
-1.Deploy the webiste on heroku  
-2.please visit https://cmpe131-sjsu.herokuapp.com/  
-3.please go to https://cmpe131-sjsu.herokuapp.com/username to see the calendar, if this creator is not exist,back to home page.  
-4.homepage has the introduction of this website.
+# step3 
+use this account to login or create your own account 
+username: zefeng 
+password: 123 
