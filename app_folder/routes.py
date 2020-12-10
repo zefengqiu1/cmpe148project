@@ -5,7 +5,7 @@ from app_folder import db,mail
 from flask_login import login_required,login_user,UserMixin,current_user,logout_user
 from flask_mail import Message
 from flask import render_template, redirect, request, flash, url_for
-from .forms import LoginForm,RegistrationForm, ForgetPasswordForm, NewPasswordForm,AvailableForm,EventForm,EmailConfimationForm,monthswitchForm,uploadImage
+from .forms import LoginForm,RegistrationForm, ForgetPasswordForm, NewPasswordForm,AvailableForm,EventForm,EmailConfimationForm,monthswitchForm
 from .models import User,Appointment,Available
 from .util import ts,split_time_ranges
 import os
