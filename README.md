@@ -12,3 +12,6 @@ got to http://127.0.0.1:5000 in browser to access website
 use this account to login or create your own account 
 username: zefeng 
 password: 123 
+
+# Note
+To use "send roomlink" function (in meeting page click an email link), you need to set up your email SMTP information in config.py and enable SMTP service in your email setting.
